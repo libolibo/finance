@@ -2,12 +2,14 @@ package miao.finance.dao;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,17 +32,27 @@ import miao.finance.view.GuideFrame;
 
 public class ExcelDao {
 
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-	
-	public Map<String, List<Account>> readExcel() throws Exception{
-		Map<String, List<Account>> result = new HashMap<String, List<Account>>();
+	public static Map<String, List<Account>> readExcel(String currentPath){
+		LinkedHashMap<String, List<Account>> result = new LinkedHashMap<String, List<Account>>();
 		
-		if(StringUtils.isEmpty(GuideFrame.CURRENT_PATH)){
+		if(StringUtils.isEmpty(currentPath)){
 			return result;
 		}
 		
-		InputStream ExcelFileToRead = new FileInputStream(GuideFrame.CURRENT_PATH);
-		HSSFWorkbook wb = new HSSFWorkbook(ExcelFileToRead);
+		InputStream ExcelFileToRead = null;
+		try {
+			ExcelFileToRead = new FileInputStream(currentPath);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		HSSFWorkbook wb = null;
+		try {
+			wb = new HSSFWorkbook(ExcelFileToRead);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		HSSFSheet sheet = null;
 		HSSFRow row = null; 
@@ -113,9 +125,10 @@ public class ExcelDao {
 		return result;
 	}
 	
-	public String getCellValue(HSSFCell cell){
+	public static String getCellValue(HSSFCell cell){
 		String result = null;
 		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		if(null == cell){
 			return "";
 		}
@@ -135,7 +148,8 @@ public class ExcelDao {
 	
 	
 	public static void main(String[] args) throws Exception {
-		Map<String, List<Account>> map = new ExcelDao().readExcel();
+		Map<String, List<Account>> map = new ExcelDao().readExcel(GuideFrame.LEFT_PATH);
+		Map<String, List<Account>> newMap = new ExcelDao().readExcel(GuideFrame.RIGHT_PATH);
 		
 		PrintWriter out = null;
 		File file = null;
@@ -156,4 +170,62 @@ public class ExcelDao {
 			out.close();
 		}
 	}
+	
+	
+	public static void removeAll(Map<String, List<Account>> leftData,
+				Map<String, List<Account>> rightData){
+		
+		List<String> sameAccounts = new ArrayList<String>();
+		
+		Set<String> leftKeys = leftData.keySet();
+		List<Account> leftValue = null;
+		List<Account> rightValue = null;
+		for(String row : leftKeys){
+			leftValue = leftData.get(row);
+			rightValue = rightData.get(row);
+			
+			if((null != rightValue) 
+					&& sameDetails(leftValue, rightValue)){
+				sameAccounts.add(row);
+			}
+		}
+		
+		for(String row : sameAccounts){
+			leftData.remove(row);
+			rightData.remove(row);
+		}
+	}
+	
+	private static boolean sameDetails(List<Account> leftValue, List<Account> rightValue){
+		boolean flag = true;
+		
+		for(Account row : leftValue){
+			
+			for(Account value : rightValue){
+				if(value.isDifference() && row.equals(value)){
+					row.setDifference(false);
+					value.setDifference(false);
+					break;
+				}
+			}
+		}
+		
+		for(Account row : leftValue) {
+			if(row.isDifference()) {
+				flag = false;
+				break;
+			}
+		}
+		
+		if(flag) {
+			for(Account row : rightValue) {
+				if(row.isDifference()) {
+					flag = false;
+					break;
+				}
+			}
+		}
+		
+		return flag;
+	} 
 }

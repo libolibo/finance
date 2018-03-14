@@ -39,6 +39,9 @@ public class Account implements Serializable{
 	/** 备注*/
 	private String comment;
 
+	/** 是否有差异*/
+	private boolean isDifference = true;
+	
 	public int getId() {
 		return id;
 	}
@@ -48,7 +51,7 @@ public class Account implements Serializable{
 	}
 
 	public String getDt() {
-		return dt;
+		return (null != dt)? dt.trim() : "";
 	}
 
 	public void setDt(String dt) {
@@ -56,7 +59,7 @@ public class Account implements Serializable{
 	}
 
 	public String getDigestBorrow() {
-		return digestBorrow;
+		return (null != digestBorrow)? digestBorrow.trim() : "";
 	}
 
 	public void setDigestBorrow(String digestBorrow) {
@@ -64,14 +67,14 @@ public class Account implements Serializable{
 	}
 
 	public String getDigestLoan() {
-		return digestLoan;
+		return (null != digestLoan)? digestLoan.trim() : "";
 	}
 
 	public void setDigestLoan(String digestLoan) {
 		this.digestLoan = digestLoan;
 	}
 
-	public String getBorrwoAmount() {
+	public String getBorrowAmount() {
 		return StringUtils.isNotEmpty(borrowAmount) ? borrowAmount.trim(): "0";
 	}
 
@@ -96,10 +99,44 @@ public class Account implements Serializable{
 	}
 
 	public String getComment() {
-		return comment;
+		return (null != comment)? comment.trim() : "";
 	}
 
 	public void setComment(String comment) {
 		this.comment = comment;
+	}
+
+	public boolean isDifference() {
+		return isDifference;
+	}
+
+	public void setDifference(boolean isDifference) {
+		this.isDifference = isDifference;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		boolean flag = false;
+		
+		if(null != obj){
+			Account account = (Account)obj;
+			if(this.getDt().equals(account.getDt())
+				&& this.getDigestBorrow().equals(account.getDigestBorrow())
+				&& this.getDigestLoan().equals(account.getDigestLoan())
+				&& this.getBorrowAmount().equals(account.getBorrowAmount())
+				&& this.getLoanAmount().equals(account.getLoanAmount())
+				&& this.getTotalAmount().equals(account.getTotalAmount())
+				&& this.getComment().equals(account.getComment())){
+				flag = true;
+			}
+		}
+		return flag;
+	}
+
+	@Override
+	public String toString() {
+		return "Account [id=" + id + ", dt=" + dt + ", digestBorrow=" + digestBorrow + ", digestLoan=" + digestLoan
+				+ ", borrowAmount=" + borrowAmount + ", loanAmount=" + loanAmount + ", totalAmount=" + totalAmount
+				+ ", comment=" + comment + ", isDifference=" + isDifference + "]";
 	}
 }
