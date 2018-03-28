@@ -15,8 +15,8 @@ import javax.swing.filechooser.FileFilter;
 
 public class GuideFrame extends JFrame{
 
-	public static String LEFT_PATH = "/Users/libo/Desktop/2017至2018年银行帐 3.3.xls";
-	public static String RIGHT_PATH = "/Users/libo/Desktop/2017至2018年银行帐.xls";
+	public static String LEFT_PATH = "/Users/libo/Desktop/2017至2018年银行帐 3.22.xls";
+	public static String RIGHT_PATH = "/Users/libo/Desktop/2017至2018年银行帐2.25.xls";
 	
 	private static int FRAME_WIDTH = 300;
 	private static int FRAME_HEIGHT = 200;

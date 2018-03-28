@@ -77,6 +77,7 @@ public class ExcelDao {
 				if((null == row) || (2 > i) || StringUtils.isEmpty(getCellValue(row.getCell(0)))){
 					continue;
 				}
+				account.setRow(i + 1);
 				account.setDt(getCellValue(row.getCell(0)));
 				account.setDigestBorrow(getCellValue(row.getCell(1)));
 				account.setDigestLoan(getCellValue(row.getCell(2)));
@@ -197,35 +198,34 @@ public class ExcelDao {
 	}
 	
 	private static boolean sameDetails(List<Account> leftValue, List<Account> rightValue){
-		boolean flag = true;
-		
-		for(Account row : leftValue){
-			
-			for(Account value : rightValue){
-				if(value.isDifference() && row.equals(value)){
-					row.setDifference(false);
-					value.setDifference(false);
-					break;
+			boolean flag = true;
+
+			for(Account row : leftValue){
+
+				for(Account value : rightValue){
+					if(value.isDifference() && row.equals(value)){
+						row.setDifference(false);
+						value.setDifference(false);
+						break;
+					}
 				}
 			}
-		}
-		
-		for(Account row : leftValue) {
-			if(row.isDifference()) {
-				flag = false;
-				break;
-			}
-		}
-		
-		if(flag) {
-			for(Account row : rightValue) {
+
+			for(Account row : leftValue) {
 				if(row.isDifference()) {
 					flag = false;
 					break;
 				}
 			}
-		}
-		
+
+			if(flag) {
+				for(Account row : rightValue) {
+					if(row.isDifference()) {
+						flag = false;
+						break;
+					}
+				}
+			}
 		return flag;
 	} 
 }

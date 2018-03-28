@@ -53,9 +53,11 @@ public class MainFrame extends JFrame{
 	private JList<Object> jList;
 	private JTable leftTable;
 	private JTable rightTable;
-	
+
+	private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
 	public MainFrame(){
-//		menu();
+		menu();
 		init();
 	}
 	
@@ -63,32 +65,59 @@ public class MainFrame extends JFrame{
 		
 		JMenuBar menuBar = new JMenuBar();
 		
-		JMenu menu = new JMenu("导入");
+		final JMenu menu = new JMenu("展开");
+
+		menu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println(menu.getText());
+			}
+		});
+
 		menu.addMenuListener(new MenuListener() {
-			
+
 			@Override
 			public void menuSelected(MenuEvent e) {
-				new GuideFrame();
+
+				if ("展开".equals(menu.getText())) {
+					MainFrame.this.setSize((int) screenSize.getWidth(), (int) screenSize.getHeight() - 100);
+					rightPane.setVisible(true);
+
+					//menu.setText("折叠");
+					menu.setVisible(false);
+				} else {
+					rightPane.setVisible(false);
+					MainFrame.this.setSize(200, 500);
+
+
+					menu.setText("展开");
+				}
+				menu.setSelected(false);
+				menu.setFocusable(false);
 			}
-			
+
 			@Override
-			public void menuDeselected(MenuEvent e) {}
+			public void menuDeselected(MenuEvent e) {
+			}
+
 			@Override
-			public void menuCanceled(MenuEvent e) {}
+			public void menuCanceled(MenuEvent e) {
+
+			}
 		});
-		
-		
+
+
 		menuBar.add(menu);
 		this.setJMenuBar(menuBar);
 	}
 	
 	private void init(){
 		this.setTitle("");
-		
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		this.setSize((int)screenSize.getWidth(), (int)screenSize.getHeight());
-		
-//		this.setLocation((int)(screenSize.getWidth() / 2 - FRAME_WIDTH / 2), 
+
+		this.setSize(200, 500);
+		//this.setSize((int)screenSize.getWidth(), (int)screenSize.getHeight());
+
+//		this.setLocation((int)(screenSize.getWidth() / 2 - FRAME_WIDTH / 2),
 //				(int)(screenSize.getHeight() / 2 - FRAME_HEIGHT / 2));
 		jList = new JList();
 		leftTable = new JTable();
@@ -96,32 +125,34 @@ public class MainFrame extends JFrame{
 
 		JScrollPane leftScrollPane = new JScrollPane(leftTable);
 		JScrollPane rightScrollPane = new JScrollPane(rightTable);
-		
+
 		if(StringUtils.isNotEmpty(GuideFrame.LEFT_PATH)){
-			leftScrollPane.setBorder(new TitledBorder(null, 
-					GuideFrame.LEFT_PATH.substring(GuideFrame.LEFT_PATH.lastIndexOf(File.separator) + 1, GuideFrame.LEFT_PATH.length()), TitledBorder.DEFAULT_JUSTIFICATION, 
+			leftScrollPane.setBorder(new TitledBorder(null,
+					GuideFrame.LEFT_PATH.substring(GuideFrame.LEFT_PATH.lastIndexOf(File.separator) + 1, GuideFrame.LEFT_PATH.length()), TitledBorder.DEFAULT_JUSTIFICATION,
 					TitledBorder.DEFAULT_POSITION, new Font(null, Font.BOLD, 20), Color.BLUE));
 		}
 		if(StringUtils.isNotEmpty(GuideFrame.RIGHT_PATH)){
-			rightScrollPane.setBorder(new TitledBorder(null, 
-					GuideFrame.RIGHT_PATH.substring(GuideFrame.RIGHT_PATH.lastIndexOf(File.separator) + 1, GuideFrame.RIGHT_PATH.length()), TitledBorder.DEFAULT_JUSTIFICATION, 
+			rightScrollPane.setBorder(new TitledBorder(null,
+					GuideFrame.RIGHT_PATH.substring(GuideFrame.RIGHT_PATH.lastIndexOf(File.separator) + 1, GuideFrame.RIGHT_PATH.length()), TitledBorder.DEFAULT_JUSTIFICATION,
 					TitledBorder.DEFAULT_POSITION, new Font(null, Font.BOLD, 20), Color.BLUE));
 		}
-		
+
 		rightPane = new JSplitPane();
 		rightPane.setLeftComponent(leftScrollPane);
 		rightPane.setRightComponent(rightScrollPane);
 		rightPane.setDividerSize(5);
 		rightPane.setDividerLocation(600);
-		
+		rightPane.setVisible(false);
+
+
 		mainPane = new JSplitPane();
 		mainPane.setLeftComponent(jList);
 		mainPane.setRightComponent(rightPane);
 		mainPane.setDividerSize(5);
 		mainPane.setDividerLocation(150);
-		
+
 		this.add(mainPane);
-		
+
 		this.setVisible(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
@@ -152,18 +183,18 @@ public class MainFrame extends JFrame{
 		jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		jList.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e) {
-				
-				if(!e.getValueIsAdjusting()){
+
+				if (!e.getValueIsAdjusting()) {
 					Set<Integer> leftRows = new HashSet<Integer>();
 					Set<Integer> rightRows = new HashSet<Integer>();
-					
+
 					int index = ((JList<Object>) e.getSource()).getSelectedIndex();
 					leftTable.setModel(new DefaultTableModel(getArray(leftData.get(leftNameArray[index]), titleArray, leftRows), titleArray));
 					rightTable.setModel(new DefaultTableModel(getArray(rightData.get(leftNameArray[index]), titleArray, rightRows), titleArray));
-					for(Object row : titleArray){
-						leftTable.getColumn(row).setCellRenderer(new MyTableCellRenderrer(leftRows));
-						rightTable.getColumn(row).setCellRenderer(new MyTableCellRenderrer(rightRows));
-					}
+//					for (Object row : titleArray) {
+//						leftTable.getColumn(row).setCellRenderer(new MyTableCellRenderrer(leftRows));
+//						rightTable.getColumn(row).setCellRenderer(new MyTableCellRenderrer(rightRows));
+//					}
 				}
 			}
 		});
@@ -179,9 +210,9 @@ public class MainFrame extends JFrame{
 			table.setFont(new Font("宋体", Font.PLAIN, 13));
 			table.setRowHeight(30);
 			
-			for(Object row : titleArray){
-				table.getColumn(row).setCellRenderer(new MyTableCellRenderrer(rows));
-			}
+//			for(Object row : titleArray){
+//				table.getColumn(row).setCellRenderer(new MyTableCellRenderrer(rows));
+//			}
 		}
 	}
 	
@@ -195,11 +226,12 @@ public class MainFrame extends JFrame{
 		}
 		
 		Account accountTemp = null;
-		Object[][] tableArray = new Object[src.size()][titleArray.length];
-		
-		for(int i = 0; i < tableArray.length; i++){
-			accountTemp = src.get(i);
-			tableArray[i] = new Object[]{(i + 1), accountTemp.getDt(), accountTemp.getDigestBorrow(), accountTemp.getDigestLoan(),
+		Object[] array = src.stream().filter(account -> account.isDifference()).toArray();
+		Object[][] tableArray = new Object[array.length][titleArray.length];
+
+		for(int i = 0; i < array.length; i++){
+			accountTemp = (Account)array[i];
+			tableArray[i] = new Object[]{accountTemp.getRow(), accountTemp.getDt(), accountTemp.getDigestBorrow(), accountTemp.getDigestLoan(),
 					accountTemp.getBorrowAmount(), accountTemp.getLoanAmount(), accountTemp.getTotalAmount(), 
 					accountTemp.getComment()};
 			
@@ -232,16 +264,15 @@ class MyTableCellRenderrer extends DefaultTableCellRenderer{
 			Object value, boolean isSelected, boolean hasFocus, int row,
 			int column){
 		Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-		
+
+
 		if(rows.contains(row)){
 			comp.setBackground(new Color(0XC1FFC1));
-		}else{
+		}else {
 			comp.setBackground(Color.WHITE);
 		}
-		
-		if(0 == column) {
-			comp.setForeground(Color.red);
-		}
+
+
 		return comp;
 	}
 }

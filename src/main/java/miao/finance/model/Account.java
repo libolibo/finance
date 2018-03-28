@@ -17,7 +17,10 @@ public class Account implements Serializable{
 
 	/** 主键ID*/
 	private int id;
-	
+
+	/** 行号*/
+	private int row;
+
 	/** 日期*/
 	private String dt;
 	
@@ -41,7 +44,8 @@ public class Account implements Serializable{
 
 	/** 是否有差异*/
 	private boolean isDifference = true;
-	
+
+
 	public int getId() {
 		return id;
 	}
@@ -138,5 +142,13 @@ public class Account implements Serializable{
 		return "Account [id=" + id + ", dt=" + dt + ", digestBorrow=" + digestBorrow + ", digestLoan=" + digestLoan
 				+ ", borrowAmount=" + borrowAmount + ", loanAmount=" + loanAmount + ", totalAmount=" + totalAmount
 				+ ", comment=" + comment + ", isDifference=" + isDifference + "]";
+	}
+
+	public int getRow() {
+		return row;
+	}
+
+	public void setRow(int row) {
+		this.row = row;
 	}
 }
