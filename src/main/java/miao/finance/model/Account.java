@@ -79,7 +79,7 @@ public class Account implements Serializable{
 	}
 
 	public String getBorrowAmount() {
-		return StringUtils.isNotEmpty(borrowAmount) ? borrowAmount.trim(): "0";
+		return StringUtils.isNotEmpty(borrowAmount) ? borrowAmount.trim(): "";
 	}
 
 	public void setBorrowAmount(String borrowAmount) {
@@ -87,7 +87,7 @@ public class Account implements Serializable{
 	}
 
 	public String getLoanAmount() {
-		return StringUtils.isNotEmpty(loanAmount) ? loanAmount.trim(): "0";
+		return StringUtils.isNotEmpty(loanAmount) ? loanAmount.trim(): "";
 	}
 
 	public void setLoanAmount(String loanAmount) {
@@ -95,7 +95,7 @@ public class Account implements Serializable{
 	}
 
 	public String getTotalAmount() {
-		return StringUtils.isNotEmpty(totalAmount) ? totalAmount.trim(): "0";
+		return StringUtils.isNotEmpty(totalAmount) ? totalAmount.trim(): "";
 	}
 
 	public void setTotalAmount(String totalAmount) {

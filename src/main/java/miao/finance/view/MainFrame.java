@@ -7,24 +7,14 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.*;
 
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -55,6 +45,9 @@ public class MainFrame extends JFrame{
 	private JTable rightTable;
 
 	private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	private List<Account> leftAccount = null;
+	private List<Account> rightAccount = null;
+	private String sheetName = "";
 
 	public MainFrame(){
 		menu();
@@ -67,15 +60,7 @@ public class MainFrame extends JFrame{
 		
 		final JMenu menu = new JMenu("展开");
 
-		menu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				System.out.println(menu.getText());
-			}
-		});
-
 		menu.addMenuListener(new MenuListener() {
-
 			@Override
 			public void menuSelected(MenuEvent e) {
 
@@ -102,12 +87,84 @@ public class MainFrame extends JFrame{
 
 			@Override
 			public void menuCanceled(MenuEvent e) {
+			}
+		});
+		menuBar.add(menu);
 
+		JMenu exportMenu = new JMenu("导出");
+
+		final JMenuItem exportPathItem = new JMenuItem("导出目录");
+		exportMenu.add(exportPathItem);
+
+		int leftSplit = GuideFrame.LEFT_PATH.lastIndexOf(File.separator);
+		final JMenuItem exportLeftMenu = new JMenuItem(GuideFrame.LEFT_PATH.substring(leftSplit + 1));
+		exportMenu.add(exportLeftMenu);
+
+		int rightSplit = GuideFrame.RIGHT_PATH.lastIndexOf(File.separator);
+		final JMenuItem exportRightMenu = new JMenuItem(GuideFrame.RIGHT_PATH.substring(rightSplit + 1));
+		exportMenu.add(exportRightMenu);
+
+		exportPathItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+				fileChooser.showDialog(new JLabel(), "选择");
+
+				File file = fileChooser.getSelectedFile();
+
+				if(null != file){
+					GuideFrame.EXPORT_PATH = fileChooser.getSelectedFile().getPath();
+
+					Properties properties = new Properties();
+					try{
+						properties.put(GuideFrame.PROPERTIES_KEY, GuideFrame.EXPORT_PATH);
+						properties.store(new FileOutputStream(new File(System.getProperty("user.home") + File.separator + GuideFrame.PROPERTIES_NAME)), "");
+						properties.clear();
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+				}
 			}
 		});
 
+		exportLeftMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				try {
+					String folderPath = GuideFrame.EXPORT_PATH;
+					if (StringUtils.isEmpty(folderPath)) {
+						folderPath = GuideFrame.LEFT_PATH.substring(0, leftSplit);
+					}
 
-		menuBar.add(menu);
+					ExcelDao.export(leftAccount.stream().filter(account -> account.isDifference()).toArray(),
+							folderPath + File.separator + sheetName + "(左侧).xls");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
+		exportRightMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				try{
+					String folderPath = GuideFrame.EXPORT_PATH;
+					if(StringUtils.isEmpty(folderPath)){
+						folderPath = GuideFrame.RIGHT_PATH.substring(0, rightSplit);
+					}
+
+					ExcelDao.export(rightAccount.stream().filter(account -> account.isDifference()).toArray(),
+							folderPath + File.separator + sheetName + "(右侧).xls");
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+			}
+		});
+
+		menuBar.add(exportMenu);
 		this.setJMenuBar(menuBar);
 	}
 	
@@ -176,7 +233,10 @@ public class MainFrame extends JFrame{
 		
 		setTable(leftTable, name, titleArray, leftData, new HashSet<Integer>());
 		setTable(rightTable, name, titleArray, rightData, new HashSet<Integer>());
-		
+		leftAccount = leftData.get(name);
+		rightAccount = rightData.get(name);
+		sheetName = name;
+
 		jList.setFont(new Font("宋体", Font.PLAIN, 13));
 		jList.setListData(leftNameArray);
 		jList.setSelectedIndex(0);
@@ -191,11 +251,17 @@ public class MainFrame extends JFrame{
 					int index = ((JList<Object>) e.getSource()).getSelectedIndex();
 					leftTable.setModel(new DefaultTableModel(getArray(leftData.get(leftNameArray[index]), titleArray, leftRows), titleArray));
 					rightTable.setModel(new DefaultTableModel(getArray(rightData.get(leftNameArray[index]), titleArray, rightRows), titleArray));
+
+					leftAccount = leftData.get(leftNameArray[index]);
+					rightAccount = rightData.get(leftNameArray[index]);
+					sheetName = leftNameArray[index].toString();
+
 //					for (Object row : titleArray) {
 //						leftTable.getColumn(row).setCellRenderer(new MyTableCellRenderrer(leftRows));
 //						rightTable.getColumn(row).setCellRenderer(new MyTableCellRenderrer(rightRows));
 //					}
 				}
+
 			}
 		});
 	}
