@@ -159,6 +159,8 @@ public class MainFrame extends JFrame{
 					ExcelDao.export(rightAccount.stream().filter(account -> account.isDifference()).toArray(),
 							folderPath + File.separator + sheetName + "(右侧).xls");
 				}catch(Exception e){
+
+
 					e.printStackTrace();
 				}
 			}
